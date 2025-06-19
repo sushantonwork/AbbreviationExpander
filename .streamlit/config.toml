@@ -1,0 +1,10 @@
+[server]
+enableWebsocketCompression = false
+enableCORS = true
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base = "dark"
