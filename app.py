@@ -3,7 +3,7 @@ from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
 
-# Enhanced Custom CSS inspired by DiffChecker
+# Enhanced Custom CSS with fixed overflow handling
 st.markdown("""
     <style>
         /* Global Styles */
@@ -54,7 +54,6 @@ st.markdown("""
         }
         
         /* Text Areas */
-        /* Text Area Fix with Caret */
         .stTextArea > div > div > textarea {
             background-color: #ffffff !important;
             border: 1px solid #3730a3 !important;
@@ -66,9 +65,8 @@ st.markdown("""
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
             resize: none !important;
             padding: 1rem !important;
-            caret-color: #1e293b !important; /* <-- ensures cursor is visible */
+            caret-color: #1e293b !important;
         }
-
         
         .stTextArea > div > div > textarea:focus {
             border-color: #1e3a8a !important;
@@ -76,19 +74,41 @@ st.markdown("""
             outline: none !important;
         }
         
-        /* Output Container */
+        /* Output Container - FIXED OVERFLOW */
         .output-container {
             background: #ffffff;
             border: 1px solid #3730a3;
             border-top: none;
             border-radius: 0 0 6px 6px;
             height: 280px;
-            overflow-y: auto;
+            overflow-y: auto !important;  /* Changed from auto to auto !important */
+            overflow-x: hidden !important; /* Hide horizontal overflow */
             padding: 1rem;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
             color: #1e293b;
+            word-wrap: break-word !important; /* Break long words */
+            white-space: pre-wrap !important;  /* Preserve whitespace but wrap */
+        }
+        
+        /* Scrollbar Styling */
+        .output-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .output-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        
+        .output-container::-webkit-scrollbar-thumb {
+            background: #3730a3;
+            border-radius: 4px;
+        }
+        
+        .output-container::-webkit-scrollbar-thumb:hover {
+            background: #1e3a8a;
         }
         
         .output-placeholder {
@@ -105,6 +125,7 @@ st.markdown("""
             border-radius: 3px;
             font-weight: 500;
             border: 1px solid #f59e0b;
+            display: inline-block; /* Ensure marks don't break layout */
         }
         
         /* Button Styles */
@@ -293,9 +314,22 @@ with col2:
         expanded_char_count = 0
         expanded_word_count = 0
     
+    # Escape HTML content to prevent injection, but preserve our mark tags
+    import html
+    if "highlighted" in st.session_state and st.session_state["highlighted"]:
+        # First escape all HTML
+        safe_highlighted = html.escape(st.session_state["highlighted"])
+        # Then restore our mark tags
+        safe_highlighted = safe_highlighted.replace("&lt;mark&gt;", "<mark>")
+        safe_highlighted = safe_highlighted.replace("&lt;/mark&gt;", "</mark>")
+        # Preserve line breaks
+        safe_highlighted = safe_highlighted.replace("\n", "<br>")
+    else:
+        safe_highlighted = highlighted
+    
     st.markdown(f"""
         <div class='output-container'>
-            {highlighted}
+            {safe_highlighted}
         </div>
     """, unsafe_allow_html=True)
     
@@ -313,7 +347,6 @@ btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 2])
 with btn_col1:
     expand_clicked = st.button("🔄 Expand Text", use_container_width=True)
 
-
 # Handle button clicks
 if expand_clicked:
     if not original_text.strip():
@@ -326,28 +359,41 @@ if expand_clicked:
         st.rerun()
 
 if "expanded" in st.session_state:
-    copy_js = f"""
-    <script>
-    function copyToClipboard(text) {{
-        navigator.clipboard.writeText(text).then(function() {{
-            const msg = document.getElementById("copy-status");
-            msg.innerText = "✅ Text copied to clipboard!";
-            msg.style.color = "green";
-        }}, function(err) {{
-            const msg = document.getElementById("copy-status");
-            msg.innerText = "❌ Failed to copy text.";
-            msg.style.color = "red";
-        }});
-    }}
-    </script>
-    <button onclick="copyToClipboard(`{st.session_state["expanded"].replace("`", "\\`")}`)" 
-        style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 13px;">
-        📋 Copy Result
-    </button>
-    <p id="copy-status" style="font-size: 13px; margin-top: 5px;"></p>
-    """
-    st.components.v1.html(copy_js, height=100)
-
+    with btn_col2:
+        # Create a download button for the expanded text
+        st.download_button(
+            label="⬇️ Download",
+            data=st.session_state["expanded"],
+            file_name="expanded_text.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+    
+    with btn_col3:
+        # JavaScript copy functionality
+        copy_js = f"""
+        <script>
+        function copyToClipboard() {{
+            const text = `{st.session_state["expanded"].replace("`", "\\`").replace("\\", "\\\\")}`;
+            navigator.clipboard.writeText(text).then(function() {{
+                const btn = document.getElementById("copyBtn");
+                btn.innerText = "✅ Copied!";
+                btn.style.background = "linear-gradient(135deg, #15803d, #16a34a)";
+                setTimeout(() => {{
+                    btn.innerText = "📋 Copy to Clipboard";
+                    btn.style.background = "linear-gradient(135deg, #1e3a8a, #1e40af)";
+                }}, 2000);
+            }}, function(err) {{
+                alert("Failed to copy text. Please try again.");
+            }});
+        }}
+        </script>
+        <button id="copyBtn" onclick="copyToClipboard()" 
+            style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 13px; width: 100%; cursor: pointer; transition: all 0.3s ease;">
+            📋 Copy to Clipboard
+        </button>
+        """
+        st.components.v1.html(copy_js, height=50)
 
 # Footer
 st.markdown("""
