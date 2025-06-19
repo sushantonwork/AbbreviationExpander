@@ -15,43 +15,63 @@ def expand_abbreviations(text, abbr_dict):
         plain_lines = []
 
         for line in lines:
-            original_line = line
-
-            def replace_number_abbr(match):
+            # --- Number + Abbr Replacements ---
+            def replace_number_abbr_plain(match):
                 quantity = match.group(1)
                 abbr = match.group(2)
                 abbr_key = abbr.lower()
                 full_form = abbr_dict.get(abbr_key)
-
                 if full_form:
                     try:
-                        qty_float = float(quantity)
-                        if qty_float < 1.01:
+                        if float(quantity) < 1.01:
+                            full_form = re.sub(r'\btons\b', 'ton', full_form, flags=re.IGNORECASE)
+                    except ValueError:
+                        pass
+                    return f"{quantity} {full_form}"
+                return match.group(0)
+
+            def replace_number_abbr_highlighted(match):
+                quantity = match.group(1)
+                abbr = match.group(2)
+                abbr_key = abbr.lower()
+                full_form = abbr_dict.get(abbr_key)
+                if full_form:
+                    try:
+                        if float(quantity) < 1.01:
                             full_form = re.sub(r'\btons\b', 'ton', full_form, flags=re.IGNORECASE)
                     except ValueError:
                         pass
                     return f"<mark>{quantity} {full_form}</mark>"
                 return match.group(0)
 
-            line_with_numbers = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z]+)\b', replace_number_abbr, line)
+            plain_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z]+)\b', replace_number_abbr_plain, line)
+            highlighted_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z]+)\b', replace_number_abbr_highlighted, line)
 
-            def replace_abbr(match):
+            # --- Pure Abbreviation Replacements ---
+            def replace_abbr_plain(match):
                 abbr = match.group(0)
-                abbr_key = abbr.lower()
-                full_form = abbr_dict.get(abbr_key)
+                full_form = abbr_dict.get(abbr.lower())
+                return full_form if full_form else abbr
+
+            def replace_abbr_highlighted(match):
+                abbr = match.group(0)
+                full_form = abbr_dict.get(abbr.lower())
                 return f"<mark>{full_form}</mark>" if full_form else abbr
 
             abbr_pattern = re.compile(
-                r'\b(' + '|'.join(re.escape(k) for k in sorted(abbr_dict, key=len, reverse=True)) + r")\b(?!\.)",
+                r'\b(' + '|'.join(re.escape(k) for k in sorted(abbr_dict, key=len, reverse=True)) + r')\.?\b',
                 re.IGNORECASE
             )
 
-            highlighted = abbr_pattern.sub(replace_abbr, line_with_numbers)
-            highlighted = capitalize_after_punctuation(highlighted)
-            plain = re.sub(r'<mark>(.*?)</mark>', r'\1', highlighted)
+            plain_line = abbr_pattern.sub(replace_abbr_plain, plain_line)
+            highlighted_line = abbr_pattern.sub(replace_abbr_highlighted, highlighted_line)
 
-            highlighted_lines.append(highlighted)
-            plain_lines.append(plain)
+            # --- Final Formatting ---
+            plain_line = capitalize_after_punctuation(plain_line)
+            highlighted_line = capitalize_after_punctuation(highlighted_line)
+
+            plain_lines.append(plain_line)
+            highlighted_lines.append(highlighted_line)
 
         return "\n".join(plain_lines), "\n".join(highlighted_lines)
 

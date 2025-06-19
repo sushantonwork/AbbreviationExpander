@@ -1,4 +1,6 @@
 import streamlit as st
+import json
+import html
 from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
@@ -315,7 +317,6 @@ with col2:
         expanded_word_count = 0
     
     # Escape HTML content to prevent injection, but preserve our mark tags
-    import html
     if "highlighted" in st.session_state and st.session_state["highlighted"]:
         # First escape all HTML
         safe_highlighted = html.escape(st.session_state["highlighted"])
@@ -354,6 +355,7 @@ if expand_clicked:
     else:
         with st.spinner("Expanding abbreviations..."):
             expanded_text, highlighted_text = expand_abbreviations(original_text, abbr_dict)
+            # Store the plain text version (without HTML tags)
             st.session_state["expanded"] = expanded_text
             st.session_state["highlighted"] = highlighted_text
         st.rerun()
@@ -370,11 +372,15 @@ if "expanded" in st.session_state:
         )
     
     with btn_col3:
-        # JavaScript copy functionality
+        # JavaScript copy functionality with proper escaping
+        import json
+        # Properly escape the text for JavaScript
+        escaped_text = json.dumps(st.session_state["expanded"])[1:-1]  # Remove quotes added by json.dumps
+        
         copy_js = f"""
         <script>
         function copyToClipboard() {{
-            const text = `{st.session_state["expanded"].replace("`", "\\`").replace("\\", "\\\\")}`;
+            const text = "{escaped_text}";
             navigator.clipboard.writeText(text).then(function() {{
                 const btn = document.getElementById("copyBtn");
                 btn.innerText = "✅ Copied!";
