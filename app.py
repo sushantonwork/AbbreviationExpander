@@ -18,27 +18,28 @@ st.markdown("""
         /* Header Styles */
         .header-container {
             background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            padding: 1rem;
+            padding: 0.5rem; /* Decreased from 1rem */
             border-radius: 8px;
             margin-bottom: 1rem;
             text-align: center;
             box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
         }
-        
+
         .main-title {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 1.4rem; /* Decreased from 2rem */
+            font-weight: 600;  /* Slightly lighter */
             color: white;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .subtitle {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 0.9rem;
+            font-size: 0.75rem; /* Decreased from 0.9rem */
             margin-top: 0.25rem;
             font-weight: 300;
         }
+
         
         /* Section Headers */
         .section-header {
@@ -82,7 +83,7 @@ st.markdown("""
             border: 1px solid #3730a3;
             border-top: none;
             border-radius: 0 0 6px 6px;
-            height: 280px;
+            height: 420px;
             overflow-y: auto !important;  /* Changed from auto to auto !important */
             overflow-x: hidden !important; /* Hide horizontal overflow */
             padding: 1rem;
@@ -239,19 +240,23 @@ st.markdown("""
 # Header Section
 st.markdown("""
     <div class='header-container'>
-        <h1 class='main-title'>Abbreviation Expander</h1>
+        <h1 class='main-title'>NEMO</h1>
         <p class='subtitle'>Transform abbreviated text into fully expanded, professional content</p>
     </div>
 """, unsafe_allow_html=True)
 
 # Sidebar
 with st.sidebar:
+    st.markdown("""<div class='sidebar-section'>""", unsafe_allow_html=True)
+
     st.markdown("""
-        <div class='sidebar-section'>
-            <h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>📁 File Upload</h3>
-            <p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>
-        </div>
+    <div style="text-align:center; margin-top:2rem;">
+        <img src="data:image/png;base64,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" width="250" />
+    </div>
     """, unsafe_allow_html=True)
+    
+    st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>", unsafe_allow_html=True)
     
     uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
     
@@ -267,6 +272,10 @@ with st.sidebar:
                 <span style='color: #d97706; font-size: 14px;'>ℹ️ Using default dictionary</span>
             </div>
         """, unsafe_allow_html=True)
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+
 
 # Load abbreviation dictionary
 if uploaded_file:
@@ -285,7 +294,7 @@ with col1:
         </div>
     """, unsafe_allow_html=True)
     
-    original_text = st.text_area("", height=280, key="input_text", label_visibility="collapsed")
+    original_text = st.text_area("", height=420, key="input_text", label_visibility="collapsed")
     
     # Stats for original text
     char_count = len(original_text) if original_text else 0
