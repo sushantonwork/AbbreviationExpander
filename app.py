@@ -1,5 +1,4 @@
 import streamlit as st
-import pyperclip
 from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
@@ -314,10 +313,6 @@ btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 2])
 with btn_col1:
     expand_clicked = st.button("🔄 Expand Text", use_container_width=True)
 
-with btn_col2:
-    st.markdown('<div class="copy-button">', unsafe_allow_html=True)
-    copy_clicked = st.button("📋 Copy Result", use_container_width=True)
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # Handle button clicks
 if expand_clicked:
@@ -330,12 +325,29 @@ if expand_clicked:
             st.session_state["highlighted"] = highlighted_text
         st.rerun()
 
-if copy_clicked and "expanded" in st.session_state:
-    try:
-        pyperclip.copy(st.session_state["expanded"])
-        st.success("✅ Text copied to clipboard successfully!")
-    except:
-        st.error("❌ Failed to copy to clipboard. Please copy manually.")
+if "expanded" in st.session_state:
+    copy_js = f"""
+    <script>
+    function copyToClipboard(text) {{
+        navigator.clipboard.writeText(text).then(function() {{
+            const msg = document.getElementById("copy-status");
+            msg.innerText = "✅ Text copied to clipboard!";
+            msg.style.color = "green";
+        }}, function(err) {{
+            const msg = document.getElementById("copy-status");
+            msg.innerText = "❌ Failed to copy text.";
+            msg.style.color = "red";
+        }});
+    }}
+    </script>
+    <button onclick="copyToClipboard(`{st.session_state["expanded"].replace("`", "\\`")}`)" 
+        style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 13px;">
+        📋 Copy Result
+    </button>
+    <p id="copy-status" style="font-size: 13px; margin-top: 5px;"></p>
+    """
+    st.components.v1.html(copy_js, height=100)
+
 
 # Footer
 st.markdown("""
