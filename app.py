@@ -164,10 +164,12 @@ st.markdown("""
         }
         
         /* Sidebar Styles */
-        .css-1d391kg {
-            background: #f8fafc;
-            border-right: 1px solid #3730a3;
+        section[data-testid="stSidebar"] {
+            background: #f8fafc !important;
+            border-right: 1px solid #3730a3 !important;
+            padding: 1rem !important;
         }
+
         
         .sidebar-section {
             background: white;
