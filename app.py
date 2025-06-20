@@ -249,7 +249,6 @@ st.markdown("""
 
 # Sidebar
 with st.sidebar:
-    st.markdown("""<div class='sidebar-section'>""", unsafe_allow_html=True)
 
     # Use st.image directly - more reliable in cloud
     try:
@@ -284,8 +283,6 @@ with st.sidebar:
                 <span style='color: #d97706; font-size: 14px;'>ℹ️ Using default dictionary</span>
             </div>
         """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
 
 
 
