@@ -290,7 +290,7 @@ with st.sidebar:
 if uploaded_file:
     abbr_dict = load_abbreviation_dict(uploaded_file)
 else:
-    abbr_dict = load_abbreviation_dict("abbreviations3.xlsx")
+    abbr_dict = load_abbreviation_dict("abbreviations4.xlsx")
 
 # Main Content Area
 col1, col2 = st.columns(2, gap="large")
