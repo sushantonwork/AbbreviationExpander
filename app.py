@@ -249,23 +249,6 @@ st.markdown("""
 
 # Sidebar
 with st.sidebar:
-
-    # Use st.image directly - more reliable in cloud
-    try:
-        st.image("logo.png", width=250)
-    except Exception as e:
-        # Fallback if image fails
-        st.markdown("""
-        <div style="text-align: center; padding: 1.5rem; margin: 1rem 0;
-                    background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); 
-                    border-radius: 12px; color: white;">
-            <h2 style="margin: 0; font-size: 2rem; font-weight: bold;">🔄 NEMO</h2>
-            <p style="margin: 0.5rem 0 0 0; font-size: 1rem; opacity: 0.9;">
-                Text Expansion Tool
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-    
     st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
     st.markdown("<p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>", unsafe_allow_html=True)
     
