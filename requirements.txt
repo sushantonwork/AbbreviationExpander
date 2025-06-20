@@ -2,4 +2,4 @@ streamlit
 pandas
 pyperclip
 openpyxl
-pillow
+Pillow
