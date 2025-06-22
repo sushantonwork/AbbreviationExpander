@@ -5,6 +5,30 @@ from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
 
+
+# Sidebar
+with st.sidebar:
+    st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
+    st.markdown("<p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>", unsafe_allow_html=True)
+    
+    uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
+    
+    if uploaded_file:
+        st.markdown("""
+            <div style='background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.75rem; margin-top: 1rem;'>
+                <span style='color: #15803d; font-size: 14px;'>✅ Custom dictionary loaded</span>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+            <div style='background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 0.75rem; margin-top: 1rem;'>
+                <span style='color: #d97706; font-size: 14px;'>ℹ️ Using default dictionary</span>
+            </div>
+        """, unsafe_allow_html=True)
+
+
+st.write("📂 File Uploaded:", uploaded_file)
+
 # Enhanced Custom CSS with fixed overflow handling
 st.markdown("""
     <style>
@@ -252,25 +276,6 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
-    st.markdown("<p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>", unsafe_allow_html=True)
-    
-    uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
-    
-    if uploaded_file:
-        st.markdown("""
-            <div style='background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 0.75rem; margin-top: 1rem;'>
-                <span style='color: #15803d; font-size: 14px;'>✅ Custom dictionary loaded</span>
-            </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown("""
-            <div style='background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 0.75rem; margin-top: 1rem;'>
-                <span style='color: #d97706; font-size: 14px;'>ℹ️ Using default dictionary</span>
-            </div>
-        """, unsafe_allow_html=True)
 
 
 
