@@ -11,9 +11,9 @@ st.markdown("""
         /* Global Styles */
         .main {
             padding-top: 0.5rem;
-            max-height: 100vh;
-            overflow: auto;
+            overflow: auto !important;
         }
+
         
         /* Header Styles */
         .header-container {
@@ -168,7 +168,11 @@ st.markdown("""
             background: #f8fafc !important;
             border-right: 1px solid #3730a3 !important;
             padding: 1rem !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
         }
+
 
         
         .sidebar-section {
@@ -221,10 +225,11 @@ st.markdown("""
         
         /* Container Height Control */
         .block-container {
-            max-height: 100vh !important;
             padding-top: 1rem !important;
             padding-bottom: 1rem !important;
+            overflow: auto !important;
         }
+
         
         /* Hide Streamlit elements */
         #MainMenu {visibility: hidden;}
