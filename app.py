@@ -12,7 +12,7 @@ st.markdown("""
         .main {
             padding-top: 0.5rem;
             max-height: 100vh;
-            overflow: hidden;
+            overflow: auto;
         }
         
         /* Header Styles */
