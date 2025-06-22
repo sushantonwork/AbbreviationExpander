@@ -188,7 +188,7 @@ st.markdown("""
         }
         
         /* Sidebar Styles */
-        section[data-testid="stSidebar"] {
+        div[class^="css"][data-testid="stSidebar"]{
             background: #f8fafc !important;
             border-right: 1px solid #3730a3 !important;
             padding: 1rem !important;
