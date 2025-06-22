@@ -5,13 +5,11 @@ from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
 
-
+uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
 # Sidebar
 with st.sidebar:
     st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
     st.markdown("<p style='color: #64748b; font-size: 14px; margin-bottom: 1rem;'>Upload your custom abbreviation dictionary</p>", unsafe_allow_html=True)
-    
-    uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
     
     if uploaded_file:
         st.markdown("""
@@ -27,7 +25,7 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
 
-st.write("📂 File Uploaded:", uploaded_file)
+
 
 # Enhanced Custom CSS with fixed overflow handling
 st.markdown("""
