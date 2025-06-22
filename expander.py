@@ -14,6 +14,11 @@ def expand_abbreviations(text, abbr_dict):
         highlighted_lines = []
         plain_lines = []
 
+        # Sort abbreviation keys by length descending for longest matching
+        sorted_keys = sorted(abbr_dict.keys(), key=len, reverse=True)
+        escaped_keys = [re.escape(k) for k in sorted_keys]
+        abbr_pattern = re.compile(r'(?<!\w)(' + '|'.join(escaped_keys) + r')(?!\w)', re.IGNORECASE)
+
         for line in lines:
             # --- Number + Abbr Replacements ---
             def replace_number_abbr_plain(match):
@@ -44,8 +49,8 @@ def expand_abbreviations(text, abbr_dict):
                     return f"<mark>{quantity} {full_form}</mark>"
                 return match.group(0)
 
-            plain_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z]+)\b', replace_number_abbr_plain, line)
-            highlighted_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z]+)\b', replace_number_abbr_highlighted, line)
+            plain_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z().]+)\b', replace_number_abbr_plain, line)
+            highlighted_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z().]+)\b', replace_number_abbr_highlighted, line)
 
             # --- Pure Abbreviation Replacements ---
             def replace_abbr_plain(match):
@@ -57,11 +62,6 @@ def expand_abbreviations(text, abbr_dict):
                 abbr = match.group(0)
                 full_form = abbr_dict.get(abbr.lower())
                 return f"<mark>{full_form}</mark>" if full_form else abbr
-
-            abbr_pattern = re.compile(
-                r'\b(' + '|'.join(re.escape(k) for k in sorted(abbr_dict, key=len, reverse=True)) + r')\.?\b',
-                re.IGNORECASE
-            )
 
             plain_line = abbr_pattern.sub(replace_abbr_plain, plain_line)
             highlighted_line = abbr_pattern.sub(replace_abbr_highlighted, highlighted_line)
