@@ -5,7 +5,7 @@ from expander import load_abbreviation_dict, expand_abbreviations
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
 
-uploaded_file = st.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
+uploaded_file = st.sidebar.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
 # Sidebar
 with st.sidebar:
     st.markdown("<h3 style='margin: 0 0 1rem 0; color: #1e293b; font-size: 1.2rem;'>File Upload</h3>", unsafe_allow_html=True)
