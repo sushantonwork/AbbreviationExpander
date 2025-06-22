@@ -256,7 +256,6 @@ st.markdown("""
         /* Hide Streamlit elements */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-        header {visibility: hidden;}
         .stDeployButton {display: none;}
         
         /* Compact spacing */
