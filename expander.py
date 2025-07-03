@@ -3,7 +3,23 @@ import re
 
 def load_abbreviation_dict(excel_file):
     df = pd.read_excel(excel_file)
-    return {k.strip().lower(): v.strip() for k, v in zip(df['Abbreviation'], df['Full Form'])}
+    return {
+        str(k).strip().lower(): str(v).strip()
+        for k, v in zip(df['Abbreviation'], df['Full Form'])
+        if pd.notna(k) and pd.notna(v)
+    }
+
+def normalize_slashes(text):
+    # Avoid touching 'and/or' or 'And/Or' etc.
+    def repl(match):
+        token = match.group(0)
+        if token.lower() == 'and/or':
+            return token
+        # Normalize all other cases like "word1/word2" or "word1 /  word2"
+        parts = re.split(r'\s*/\s*', token)
+        return f'{parts[0]} / {parts[1]}' if len(parts) == 2 else token
+
+    return re.sub(r'\b\S+\s*/\s*\S+\b', repl, text)
 
 def expand_abbreviations(text, abbr_dict):
     def capitalize_after_punctuation(text):
@@ -13,6 +29,9 @@ def expand_abbreviations(text, abbr_dict):
         lines = original_text.splitlines()
         highlighted_lines = []
         plain_lines = []
+
+        # Preprocess slash spacing before anything
+        lines = [normalize_slashes(line) for line in lines]
 
         # Sort abbreviation keys by length descending for longest matching
         sorted_keys = sorted(abbr_dict.keys(), key=len, reverse=True)
