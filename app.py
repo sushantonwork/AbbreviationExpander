@@ -24,10 +24,7 @@ with st.sidebar:
             </div>
         """, unsafe_allow_html=True)
 
-
-
-
-# Enhanced Custom CSS with fixed overflow handling
+# Enhanced Custom CSS with improved layout and fixed gaps
 st.markdown("""
     <style>
         /* Global Styles */
@@ -36,20 +33,27 @@ st.markdown("""
             overflow: auto !important;
         }
 
+        /* Container Height Control */
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            overflow: auto !important;
+            max-width: none !important;
+        }
         
         /* Header Styles */
         .header-container {
             background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            padding: 0.5rem; /* Decreased from 1rem */
+            padding: 0.5rem;
             border-radius: 8px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-align: center;
             box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
         }
 
         .main-title {
-            font-size: 1.4rem; /* Decreased from 2rem */
-            font-weight: 600;  /* Slightly lighter */
+            font-size: 1.4rem;
+            font-weight: 600;
             color: white;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -57,11 +61,23 @@ st.markdown("""
 
         .subtitle {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 0.75rem; /* Decreased from 0.9rem */
+            font-size: 0.75rem;
             margin-top: 0.25rem;
             font-weight: 300;
         }
 
+        /* Column Layout Fixes */
+        .stColumn {
+            padding: 0 0.5rem !important;
+        }
+        
+        .stColumn:first-child {
+            padding-left: 0 !important;
+        }
+        
+        .stColumn:last-child {
+            padding-right: 0 !important;
+        }
         
         /* Section Headers */
         .section-header {
@@ -69,7 +85,7 @@ st.markdown("""
             border: 1px solid #3730a3;
             border-radius: 6px 6px 0 0;
             padding: 0.75rem 1rem;
-            margin: 0;
+            margin: 0 0 0 0;
             font-size: 1rem;
             font-weight: 600;
             color: white;
@@ -79,11 +95,24 @@ st.markdown("""
         }
         
         /* Text Areas */
+        .stTextArea {
+            margin-bottom: 0 !important;
+        }
+        
+        .stTextArea > div {
+            margin-bottom: 0 !important;
+        }
+        
+        .stTextArea > div > div {
+            margin-bottom: 0 !important;
+        }
+        
         .stTextArea > div > div > textarea {
             background-color: #ffffff !important;
             border: 1px solid #3730a3 !important;
             border-top: none !important;
-            border-radius: 0 0 6px 6px !important;
+            border-radius: 0 !important;
+            border-bottom: none !important;
             font-size: 13px !important;
             line-height: 1.5 !important;
             color: #1e293b !important;
@@ -91,6 +120,7 @@ st.markdown("""
             resize: none !important;
             padding: 1rem !important;
             caret-color: #1e293b !important;
+            margin-bottom: 0 !important;
         }
         
         .stTextArea > div > div > textarea:focus {
@@ -99,22 +129,23 @@ st.markdown("""
             outline: none !important;
         }
         
-        /* Output Container - FIXED OVERFLOW */
+        /* Output Container */
         .output-container {
             background: #ffffff;
             border: 1px solid #3730a3;
             border-top: none;
             border-radius: 0 0 6px 6px;
             height: 420px;
-            overflow-y: auto !important;  /* Changed from auto to auto !important */
-            overflow-x: hidden !important; /* Hide horizontal overflow */
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
             padding: 1rem;
             font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
             font-size: 13px;
             line-height: 1.5;
             color: #1e293b;
-            word-wrap: break-word !important; /* Break long words */
-            white-space: pre-wrap !important;  /* Preserve whitespace but wrap */
+            word-wrap: break-word !important;
+            white-space: pre-wrap !important;
+            margin-bottom: 0 !important;
         }
         
         /* Scrollbar Styling */
@@ -150,10 +181,15 @@ st.markdown("""
             border-radius: 3px;
             font-weight: 500;
             border: 1px solid #f59e0b;
-            display: inline-block; /* Ensure marks don't break layout */
+            display: inline-block;
         }
         
         /* Button Styles */
+        .stButton {
+            margin-top: 0.5rem !important;
+            margin-bottom: 0 !important;
+        }
+        
         .stButton > button {
             background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
             color: white !important;
@@ -164,6 +200,7 @@ st.markdown("""
             font-size: 13px !important;
             transition: all 0.3s ease !important;
             box-shadow: 0 3px 6px rgba(220, 38, 38, 0.3) !important;
+            width: 100% !important;
         }
         
         .stButton > button:hover {
@@ -175,35 +212,14 @@ st.markdown("""
             transform: translateY(0) !important;
         }
         
-        /* Copy Button Special Style */
-        .copy-button button {
-            background: linear-gradient(135deg, #1e3a8a, #1e40af) !important;
-            box-shadow: 0 3px 6px rgba(30, 58, 138, 0.3) !important;
+        /* Download Button Special Style */
+        .stDownloadButton > button {
+            background: linear-gradient(135deg, #059669, #047857) !important;
+            box-shadow: 0 3px 6px rgba(5, 150, 105, 0.3) !important;
         }
         
-        .copy-button button:hover {
-            box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4) !important;
-        }
-        
-        /* Sidebar Styles */
-        div[class^="css"][data-testid="stSidebar"]{
-            background: #f8fafc !important;
-            border-right: 1px solid #3730a3 !important;
-            padding: 1rem !important;
-            height: 100vh !important;
-            overflow-y: auto !important;
-            overflow-x: hidden !important;
-        }
-
-
-        
-        .sidebar-section {
-            background: white;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 4px rgba(30, 58, 138, 0.1);
-            border: 1px solid #e2e8f0;
+        .stDownloadButton > button:hover {
+            box-shadow: 0 6px 12px rgba(5, 150, 105, 0.4) !important;
         }
         
         /* Stats Bar */
@@ -218,12 +234,33 @@ st.markdown("""
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 0.5rem;
+            margin-top: 0 !important;
         }
         
         .stat-item {
             display: flex;
             align-items: center;
             gap: 0.25rem;
+        }
+        
+        /* Sidebar Styles */
+        div[class^="css"][data-testid="stSidebar"]{
+            background: #f8fafc !important;
+            border-right: 1px solid #3730a3 !important;
+            padding: 1rem !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+        }
+        
+        .sidebar-section {
+            background: white;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(30, 58, 138, 0.1);
+            border: 1px solid #e2e8f0;
         }
         
         /* Success/Warning Messages */
@@ -245,14 +282,6 @@ st.markdown("""
             margin: 0.5rem 0 !important;
         }
         
-        /* Container Height Control */
-        .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-            overflow: auto !important;
-        }
-
-        
         /* Hide Streamlit elements */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
@@ -261,6 +290,13 @@ st.markdown("""
         /* Compact spacing */
         .element-container {
             margin-bottom: 0.5rem !important;
+        }
+        
+        /* Footer */
+        .footer-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -273,17 +309,14 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-
-
-
 # Load abbreviation dictionary
 if uploaded_file:
     abbr_dict = load_abbreviation_dict(uploaded_file)
 else:
-    abbr_dict = load_abbreviation_dict("abbreviations3rdJuly.xlsx")
+    abbr_dict = load_abbreviation_dict("abbreviations4thJuly.xlsx")
 
-# Main Content Area
-col1, col2 = st.columns(2, gap="large")
+# Main Content Area - Changed gap from "large" to "medium"
+col1, col2 = st.columns(2, gap="medium")
 
 # Left Column: Original Text Input
 with col1:
@@ -305,6 +338,22 @@ with col1:
             <div class='stat-item'>📝 Words: {word_count}</div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Buttons below the first box (Original Text)
+    col1_btn1, col1_btn2 = st.columns(2, gap="small")
+    
+    with col1_btn1:
+        expand_clicked = st.button("🔄 Expand Text", use_container_width=True)
+    
+    with col1_btn2:
+        if "expanded" in st.session_state:
+            st.download_button(
+                label="⬇️ Download",
+                data=st.session_state["expanded"],
+                file_name="expanded_text.txt",
+                mime="text/plain",
+                use_container_width=True
+            )
 
 # Right Column: Expanded Text Output
 with col2:
@@ -349,12 +398,44 @@ with col2:
             <div class='stat-item'>📝 Words: {expanded_word_count}</div>
         </div>
     """, unsafe_allow_html=True)
+    
+    # Buttons below the second box (Expanded Text)
+    if "expanded" in st.session_state:
+        col2_btn1, col2_btn2 = st.columns(2, gap="small")
 
-# Action Buttons
-btn_col1, btn_col2, btn_col3 = st.columns([1, 1, 2])
+        with col2_btn1:
+            if st.button("🗑️ Clear", key="clear_out", use_container_width=True):
+                st.session_state.pop("expanded", None)
+                st.session_state.pop("highlighted", None)
+                st.rerun()
 
-with btn_col1:
-    expand_clicked = st.button("🔄 Expand Text", use_container_width=True)
+        with col2_btn2:
+            import json
+            escaped_text = json.dumps(st.session_state["expanded"])[1:-1]
+
+            copy_js = f"""
+            <script>
+            function copyToClipboard() {{
+                const text = "{escaped_text}";
+                navigator.clipboard.writeText(text).then(function() {{
+                    const btn = document.getElementById("copyBtn");
+                    btn.innerText = "✅ Copied!";
+                    btn.style.background = "linear-gradient(135deg, #15803d, #16a34a)";
+                    setTimeout(() => {{
+                        btn.innerText = "📋 Copy to Clipboard";
+                        btn.style.background = "linear-gradient(135deg, #1e3a8a, #1e40af)";
+                    }}, 2000);
+                }}, function(err) {{
+                    alert("Failed to copy text. Please try again.");
+                }});
+            }}
+            </script>
+            <button id="copyBtn" onclick="copyToClipboard()" 
+                style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 13px; width: 100%; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 3px 6px rgba(30, 58, 138, 0.3);">
+                📋 Copy to Clipboard
+            </button>
+            """
+            st.components.v1.html(copy_js, height=50)
 
 # Handle button clicks
 if expand_clicked:
@@ -368,51 +449,11 @@ if expand_clicked:
             st.session_state["highlighted"] = highlighted_text
         st.rerun()
 
-if "expanded" in st.session_state:
-    with btn_col2:
-        # Create a download button for the expanded text
-        st.download_button(
-            label="⬇️ Download",
-            data=st.session_state["expanded"],
-            file_name="expanded_text.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
-    
-    with btn_col3:
-        # JavaScript copy functionality with proper escaping
-        import json
-        # Properly escape the text for JavaScript
-        escaped_text = json.dumps(st.session_state["expanded"])[1:-1]  # Remove quotes added by json.dumps
-        
-        copy_js = f"""
-        <script>
-        function copyToClipboard() {{
-            const text = "{escaped_text}";
-            navigator.clipboard.writeText(text).then(function() {{
-                const btn = document.getElementById("copyBtn");
-                btn.innerText = "✅ Copied!";
-                btn.style.background = "linear-gradient(135deg, #15803d, #16a34a)";
-                setTimeout(() => {{
-                    btn.innerText = "📋 Copy to Clipboard";
-                    btn.style.background = "linear-gradient(135deg, #1e3a8a, #1e40af)";
-                }}, 2000);
-            }}, function(err) {{
-                alert("Failed to copy text. Please try again.");
-            }});
-        }}
-        </script>
-        <button id="copyBtn" onclick="copyToClipboard()" 
-            style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; border-radius: 6px; padding: 0.6rem 1.2rem; font-weight: 600; font-size: 13px; width: 100%; cursor: pointer; transition: all 0.3s ease;">
-            📋 Copy to Clipboard
-        </button>
-        """
-        st.components.v1.html(copy_js, height=50)
-
 # Footer
 st.markdown("""
-<hr style='margin: 1rem 0 0.5rem 0; border: none; height: 1px; background: #e2e8f0;'>
-<div style='text-align: center; color: #64748b; font-size: 12px; padding-bottom: 0.5rem;'>
-    Built with ❤️ using Streamlit • Transform your abbreviated text efficiently
+<div class='footer-section'>
+    <div style='text-align: center; color: #64748b; font-size: 12px; padding-bottom: 0.5rem;'>
+        Hi Ctrl+C, Ctrl+V master (just kidding... mostly) ⭐• Transform your abbreviated text efficiently
+    </div>
 </div>
 """, unsafe_allow_html=True)
