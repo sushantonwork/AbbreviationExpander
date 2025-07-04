@@ -448,12 +448,3 @@ if expand_clicked:
             st.session_state["expanded"] = expanded_text
             st.session_state["highlighted"] = highlighted_text
         st.rerun()
-
-# Footer
-st.markdown("""
-<div class='footer-section'>
-    <div style='text-align: center; color: #64748b; font-size: 12px; padding-bottom: 0.5rem;'>
-        Hi Ctrl+C, Ctrl+V master (just kidding... mostly) ⭐• Transform your abbreviated text efficiently
-    </div>
-</div>
-""", unsafe_allow_html=True)
