@@ -414,7 +414,7 @@ st.markdown("""
 if uploaded_file:
     abbr_dict = load_abbreviation_dict(uploaded_file)
 else:
-    abbr_dict = load_abbreviation_dict("abbreviations4thJuly.xlsx")
+    abbr_dict = load_abbreviation_dict("abbreviations7thJuly.xlsx")
 
 # Main Content Area - Changed gap from "large" to "medium"
 col1, col2 = st.columns(2, gap="medium")
