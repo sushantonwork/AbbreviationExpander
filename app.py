@@ -54,13 +54,13 @@ st.markdown("""
         .main-title {
             font-size: 1.4rem;
             font-weight: 600;
-            color: white;
+            color: white !important;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .subtitle {
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.9) !important;
             font-size: 0.75rem;
             margin-top: 0.25rem;
             font-weight: 300;
@@ -251,14 +251,29 @@ st.markdown("""
             transform: translateY(0) !important;
         }
         
-        /* Download Button - Changed to Blue */
+        /* Download Button - Fixed text color to always be white */
         .stDownloadButton > button {
             background: linear-gradient(135deg, #1e3a8a, #1e40af) !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 0.6rem 1.2rem !important;
+            font-weight: 600 !important;
+            font-size: 13px !important;
+            transition: all 0.3s ease !important;
             box-shadow: 0 3px 6px rgba(30, 58, 138, 0.3) !important;
+            width: 100% !important;
         }
         
         .stDownloadButton > button:hover {
+            transform: translateY(-1px) !important;
             box-shadow: 0 6px 12px rgba(30, 58, 138, 0.4) !important;
+            color: white !important;
+        }
+        
+        .stDownloadButton > button:active {
+            transform: translateY(0) !important;
+            color: white !important;
         }
         
         /* Force exact alignment for both stats bars */
