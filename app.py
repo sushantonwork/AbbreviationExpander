@@ -416,6 +416,10 @@ if uploaded_file:
 else:
     abbr_dict = load_abbreviation_dict("abbreviations7thJuly.xlsx")
 
+# Initialize clear counter for forcing text area reset
+if "clear_counter" not in st.session_state:
+    st.session_state.clear_counter = 0
+
 # Main Content Area - Changed gap from "large" to "medium"
 col1, col2 = st.columns(2, gap="medium")
 
@@ -427,7 +431,7 @@ with col1:
         </div>
     """, unsafe_allow_html=True)
     
-    original_text = st.text_area("", height=420, key="input_text", label_visibility="collapsed")
+    original_text = st.text_area("", height=420, key=f"input_text_{st.session_state.clear_counter}", label_visibility="collapsed")
     
     # Stats for original text
     char_count = len(original_text) if original_text else 0
@@ -506,8 +510,11 @@ with col2:
 
         with col2_btn1:
             if st.button("🗑️ Clear", key="clear_out", use_container_width=True):
+                # Clear both columns by removing all relevant session state
                 st.session_state.pop("expanded", None)
                 st.session_state.pop("highlighted", None)
+                # Increment counter to force text area reset
+                st.session_state.clear_counter += 1
                 st.rerun()
 
         with col2_btn2:
