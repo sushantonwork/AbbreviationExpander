@@ -10,9 +10,9 @@ from expander import load_abbreviation_dict, expand_abbreviations
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Updated regex to handle the actual document format
-HEADER_RE = re.compile(r"^\s*(\d{1,3})\\?\.\s*(.*)$")
-# Additional regex to handle existing "Clause X" format
-CLAUSE_RE = re.compile(r"^\s*[Cc]lause\s+(\d{1,3})\.?\s*(.*)$", re.IGNORECASE)
+HEADER_RE = re.compile(r"^\s*(\d{1,3})\\?[\.\:\-]\s*(.*)$")
+# Additional regex to handle existing "Clause X" format with various separators
+CLAUSE_RE = re.compile(r"^\s*[Cc]lause\s+(\d{1,3})[\.\:\-]?\s*(.*)$", re.IGNORECASE)
 
 def is_clause_heading(text: str, expected: int | None) -> tuple[bool, int | None]:
     """
@@ -87,6 +87,8 @@ def clean_header_text(text: str) -> str:
     """Clean and format header text for display"""
     # Remove escape characters
     text = text.replace('\\', '')
+    # Remove leading colons, dashes, and extra spaces
+    text = re.sub(r'^[\:\-\s]+', '', text)
     # Normalize whitespace
     text = re.sub(r'\s+', ' ', text.strip())
     return text
