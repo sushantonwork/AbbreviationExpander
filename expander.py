@@ -93,6 +93,11 @@ def expand_abbreviations(text, abbr_dict):
                 abbr = match.group(0)
                 full_form = abbr_dict.get(abbr.lower())
                 return f"<mark>{full_form}</mark>" if full_form else abbr
+            
+            def avoid_nested_mark(text):
+                # Fix nested <mark> tags like <mark><mark>text</mark></mark> → <mark>text</mark>
+                text = re.sub(r'<mark><mark>(.*?)</mark></mark>', r'<mark>\1</mark>', text)
+                return text
 
             plain_line = abbr_pattern.sub(replace_abbr_plain, plain_line)
             highlighted_line = abbr_pattern.sub(replace_abbr_highlighted, highlighted_line)
@@ -103,6 +108,8 @@ def expand_abbreviations(text, abbr_dict):
 
             plain_line = normalize_slashes(plain_line, highlight=False)
             highlighted_line = normalize_slashes(highlighted_line, highlight=True)
+
+            highlighted_line = avoid_nested_mark(highlighted_line)
 
             plain_lines.append(plain_line)
             highlighted_lines.append(highlighted_line)

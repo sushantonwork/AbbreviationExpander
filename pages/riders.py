@@ -3,7 +3,12 @@ import streamlit as st
 from docx import Document                # python‑docx
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.dml import MSO_THEME_COLOR_INDEX
+from docx.enum.text import WD_COLOR_INDEX
 from expander import load_abbreviation_dict, expand_abbreviations
+
+def strip_html_tags(text):
+    return re.sub(r'</?mark>', '', text)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helper ─ identify real clause headings only - IMPROVED VERSION
@@ -135,11 +140,12 @@ if go:
         with st.spinner("Expanding abbreviations and creating Word document…"):
 
             # --- 1. expand abbreviations (plain) ---------------------------
-            expanded_plain, _ = expand_abbreviations(raw_text, abbr_dict)
-            
-            from expander import normalize_slashes
-            expanded_plain = normalize_slashes(expanded_plain)
-            
+            expanded_plain, expanded_highlighted = expand_abbreviations(raw_text, abbr_dict)
+
+            if not expanded_plain or not expanded_highlighted:
+                st.error("Something went wrong during abbreviation expansion")
+                st.stop()
+
             # --- 2. build .docx in memory ----------------------------------
             doc   = Document()
             style = doc.styles["Normal"]
@@ -148,28 +154,47 @@ if go:
 
             expected_clause_num = None
             
-            for line in expanded_plain.splitlines():
+            # Process both plain and highlighted versions
+            plain_lines = expanded_plain.splitlines() if expanded_plain else []
+            highlighted_lines = expanded_highlighted.splitlines() if expanded_highlighted else []
+            
+            # Ensure both lists have the same length
+            max_len = max(len(plain_lines), len(highlighted_lines))
+            while len(plain_lines) < max_len:
+                plain_lines.append("")
+            while len(highlighted_lines) < max_len:
+                highlighted_lines.append("")
+            
+            for i, (plain_line, highlighted_line) in enumerate(zip(plain_lines, highlighted_lines)):
 
                 # Skip blank lines entirely
-                if not line.strip():
+                if not plain_line.strip():
                     preview_lines.append("")        # keep blank for preview
                     continue
 
                 # Check if this line is a clause heading (handles both "31." and "Clause 31" formats)
-                is_header, expected_clause_num = is_clause_heading(line, expected_clause_num)
+                is_header, expected_clause_num = is_clause_heading(plain_line, expected_clause_num)
                 
                 if is_header:
                     # Extract number and title using both possible regex patterns
-                    m = HEADER_RE.match(line.strip())
-                    clause_m = CLAUSE_RE.match(line.strip())
+                    m = HEADER_RE.match(plain_line.strip())
+                    clause_m = CLAUSE_RE.match(plain_line.strip())
                     
                     # Use whichever pattern matched
                     if clause_m:
                         num = clause_m.group(1)
                         title = clean_header_text(clause_m.group(2))
+                        original_format = f"Clause {num}"
                     else:
                         num = m.group(1)
                         title = clean_header_text(m.group(2))
+                        # Determine original separator from the line
+                        if ':' in plain_line:
+                            original_format = f"{num}:"
+                        elif '-' in plain_line:
+                            original_format = f"{num}-"
+                        else:
+                            original_format = f"{num}."
                         
                     # Determine if we should include the title or treat it as separate paragraph
                     should_include_title = True
@@ -193,44 +218,96 @@ if go:
                     else:
                         clause_text = f"CLAUSE {num}. {title.upper()}"
 
+                    # Check if clause header was changed (standardized)
+                    original_line = plain_line.strip()
+                    header_was_changed = not original_line.upper().startswith(f"CLAUSE {num}.")
+                    
                     # docx – header
-                    p   = doc.add_paragraph()
+                    p = doc.add_paragraph()
                     run = p.add_run(clause_text)
-                    run.bold      = True
+                    run.bold = True
                     run.underline = True
+                    
+                    # Add highlighting if clause header was standardized
+                    if header_was_changed:
+                        run.font.highlight_color = WD_COLOR_INDEX.BRIGHT_GREEN
 
                     # paragraph formatting
                     p.paragraph_format.space_before = Pt(0)
-                    p.paragraph_format.space_after  = Pt(10)
+                    p.paragraph_format.space_after = Pt(10)
                     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-                    # preview
-                    preview_lines.append(
-                        f"<b><u>{html.escape(clause_text)}</u></b>"
-                    )
+                    # preview - show highlighting if changed
+                    if header_was_changed:
+                        preview_lines.append(
+                            f"<b><u><mark>{html.escape(clause_text)}</mark></u></b>"
+                        )
+                    else:
+                        preview_lines.append(
+                            f"<b><u>{html.escape(clause_text)}</u></b>"
+                        )
                     
                     # If we have remaining text that should be a separate paragraph, add it
                     if remaining_text:
-                        p = doc.add_paragraph(remaining_text)
+                        # Check if remaining text has highlights
+                        remaining_highlighted = highlighted_line[highlighted_line.find(remaining_text):] if remaining_text in highlighted_line else remaining_text
+                        
+                        # Add paragraph to docx
+                        p = doc.add_paragraph()
+                        
+                        if '<mark>' in remaining_highlighted:
+                            # Process highlighted parts
+                            parts = re.split(r'(<mark>.*?</mark>)', remaining_highlighted)
+                            for part in parts:
+                                if part.startswith('<mark>') and part.endswith('</mark>'):
+                                    # This is highlighted text
+                                    clean_text = part[6:-7]  # Remove <mark> tags
+                                    run = p.add_run(clean_text)
+                                    run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+                                else:
+                                    # Regular text
+                                    p.add_run(part)
+                        else:
+                            # No highlights in remaining text
+                            p.add_run(remaining_text)
+                            
                         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                         p.paragraph_format.space_before = Pt(0)
-                        p.paragraph_format.space_after  = Pt(10)
-                        run = p.runs[0]
-                        run.font.name = "Arial"
-                        run.font.size = Pt(10)
+                        p.paragraph_format.space_after = Pt(10)
                         
-                        preview_lines.append(html.escape(remaining_text))
+                        # Set font for all runs
+                        for run in p.runs:
+                            run.font.name = "Arial"
+                            run.font.size = Pt(10)
+                        
+                        preview_lines.append(remaining_highlighted)
                 else:
-                    # regular paragraph
-                    p = doc.add_paragraph(line)
+                    # regular paragraph - check for abbreviation highlights
+                    p = doc.add_paragraph()
+                    
+                    if '<mark>' in highlighted_line:
+                        parts = re.split(r'(<mark>.*?</mark>)', highlighted_line)
+                        for part in parts:
+                            if part.startswith('<mark>') and part.endswith('</mark>'):
+                                clean_text = strip_html_tags(part)
+                                run = p.add_run(clean_text)
+                                run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+                            else:
+                                p.add_run(strip_html_tags(part))
+                    else:
+                        # No highlights in this line
+                        p.add_run(plain_line)
+                    
                     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                     p.paragraph_format.space_before = Pt(0)
-                    p.paragraph_format.space_after  = Pt(10)
-                    run = p.runs[0]
-                    run.font.name = "Arial"
-                    run.font.size = Pt(10)
+                    p.paragraph_format.space_after = Pt(10)
+                    
+                    # Set font for all runs
+                    for run in p.runs:
+                        run.font.name = "Arial"
+                        run.font.size = Pt(10)
 
-                    preview_lines.append(html.escape(line))
+                    preview_lines.append(highlighted_line)
 
             # save the document
             bio = io.BytesIO()
@@ -240,6 +317,20 @@ if go:
 
         # --- 3. live preview ---------------------------------------------
         st.subheader("Preview")
+        
+        # Add highlighting legend
+        st.markdown(
+            """
+            <div style="margin-bottom: 10px; padding: 8px; background: #f0f2f6; border-radius: 4px; font-size: 12px;">
+            <strong>🎨 Highlighting Legend:</strong><br>
+            <span style="background: #90EE90; padding: 2px 4px; border-radius: 2px;">Green</span> = Clause headers standardized &nbsp;&nbsp;
+            <span style="background: #FFFF00; padding: 2px 4px; border-radius: 2px;">Yellow</span> = Abbreviations expanded
+            <br><small>💡 Highlights are removable in Word: Select All → Home tab → Text Highlight Color → No Color</small>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
         st.markdown(
             "<div style='background:#fff;border:1px solid #3730a3;"
             "padding:1rem;border-radius:6px;white-space:pre-wrap;"
