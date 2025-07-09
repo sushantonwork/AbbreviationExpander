@@ -110,7 +110,11 @@ if dict_file:
     st.sidebar.success("Custom dictionary loaded!", icon="✅")
     abbr_dict = load_abbreviation_dict(dict_file)
 else:
-    abbr_dict = load_abbreviation_dict("abbreviations4thJuly.xlsx")
+    # Load the same dictionary as used by the app
+    if dict_file:
+        abbr_dict = load_abbreviation_dict(dict_file)
+    else:
+        abbr_dict = load_abbreviation_dict("abbreviations7thJuly.xlsx")
     st.sidebar.info("Using default dictionary")
 
 # 2️⃣  User input -------------------------------------------------------------

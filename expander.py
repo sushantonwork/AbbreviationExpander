@@ -80,9 +80,6 @@ def expand_abbreviations(text, abbr_dict):
                     return f"<mark>{quantity} {full_form}</mark>"
                 return match.group(0)
 
-            plain_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z().]+)\b', replace_number_abbr_plain, line)
-            highlighted_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z().]+)\b', replace_number_abbr_highlighted, line)
-
             # --- Pure Abbreviation Replacements ---
             def replace_abbr_plain(match):
                 abbr = match.group(0)
@@ -99,16 +96,19 @@ def expand_abbreviations(text, abbr_dict):
                 text = re.sub(r'<mark><mark>(.*?)</mark></mark>', r'<mark>\1</mark>', text)
                 return text
 
+            plain_line = normalize_slashes(line, highlight=False)
+            highlighted_line = normalize_slashes(line, highlight=True)
+
+            # 2. Expand number + abbreviation (like 1.0 h/owners)
+            plain_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z()./]+)\b', replace_number_abbr_plain, plain_line)
+            highlighted_line = re.sub(r'\b(\d*\.?\d+)\s*([a-zA-Z()./]+)\b', replace_number_abbr_highlighted, highlighted_line)
+
             plain_line = abbr_pattern.sub(replace_abbr_plain, plain_line)
             highlighted_line = abbr_pattern.sub(replace_abbr_highlighted, highlighted_line)
 
             # --- Final Formatting ---
             plain_line = capitalize_after_punctuation(plain_line)
             highlighted_line = capitalize_after_punctuation(highlighted_line)
-
-            plain_line = normalize_slashes(plain_line, highlight=False)
-            highlighted_line = normalize_slashes(highlighted_line, highlight=True)
-
             highlighted_line = avoid_nested_mark(highlighted_line)
 
             plain_lines.append(plain_line)
