@@ -151,7 +151,7 @@ if go:
                 st.stop()
 
             # --- 2. build .docx in memory ----------------------------------
-            doc   = Document()
+            doc   = Document("WORKING RIDERS.docx")
             style = doc.styles["Normal"]
             style.font.name = "Arial"
             style.font.size = Pt(10)
