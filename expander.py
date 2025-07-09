@@ -1,6 +1,37 @@
 import pandas as pd
 import re
 
+def normalize_slashes(text: str, highlight=False) -> str:
+    """
+    Normalizes:
+    - 'and / or' → 'and/or'
+    - 'word1 / word2 / word3' etc. → single spaced slashes
+    If highlight=True, wrap changed parts in <mark> tags.
+    """
+
+    # 1. Handle "and / or" → "and/or"
+    def fix_and_or(m):
+        return "<mark>and/or</mark>" if highlight else "and/or"
+    text = re.sub(r'\band\s*/\s*or\b', fix_and_or, text, flags=re.IGNORECASE)
+
+    # 2. Normalize multiple slashes
+    def fix_multiple(m):
+        parts = re.split(r'\s*/\s*', m.group())
+        fixed = ' / '.join(parts)
+        return f"<mark>{fixed}</mark>" if highlight else fixed
+    text = re.sub(r'(\w+\s*/\s*\w+(?:\s*/\s*\w+)+)', fix_multiple, text)
+
+    # 3. Normalize single slash phrases
+    def fix_single(m):
+        a, b = m.group(1), m.group(2)
+        if a.lower() == "and" and b.lower() == "or":
+            return "<mark>and/or</mark>" if highlight else "and/or"
+        fixed = f"{a} / {b}"
+        return f"<mark>{fixed}</mark>" if highlight else fixed
+    text = re.sub(r'\b(\w+)\s*/\s*(\w+)\b', fix_single, text)
+
+    return text
+
 def load_abbreviation_dict(excel_file):
     df = pd.read_excel(excel_file)
     return {k.strip().lower(): v.strip() for k, v in zip(df['Abbreviation'], df['Full Form'])}
@@ -69,6 +100,9 @@ def expand_abbreviations(text, abbr_dict):
             # --- Final Formatting ---
             plain_line = capitalize_after_punctuation(plain_line)
             highlighted_line = capitalize_after_punctuation(highlighted_line)
+
+            plain_line = normalize_slashes(plain_line, highlight=False)
+            highlighted_line = normalize_slashes(highlighted_line, highlight=True)
 
             plain_lines.append(plain_line)
             highlighted_lines.append(highlighted_line)

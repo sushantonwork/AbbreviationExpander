@@ -137,31 +137,9 @@ if go:
             # --- 1. expand abbreviations (plain) ---------------------------
             expanded_plain, _ = expand_abbreviations(raw_text, abbr_dict)
             
-            # 2. Normalize "and / or" specifically
-            expanded_plain = re.sub(r'\band\s*/\s*or\b', 'and/or', expanded_plain, flags=re.IGNORECASE)
-
-            # 3. Normalize all other slash-separated words with multiple slashes in a line
-            def normalize_all_slashes(text):
-                def fix(match):
-                    parts = re.split(r'\s*/\s*', match.group())
-                    return ' / '.join(parts)
-    
-                # This catches any line with at least one slash between words
-                return re.sub(r'(\w+\s*/\s*\w+(?:\s*/\s*\w+)+)', fix, text)
-
-            # First apply to all multi-slash phrases
-            expanded_plain = normalize_all_slashes(expanded_plain)
-
-            # Then fallback to single slash cleanup (for any leftover basic slash-separated words)
-            def normalize_single_slash(match):
-                part1 = match.group(1).strip()
-                part2 = match.group(2).strip()
-                if part1.lower() == "and" and part2.lower() == "or":
-                    return "and/or"
-                return f"{part1} / {part2}"
-
-            expanded_plain = re.sub(r'\b(\w+)\s*/\s*(\w+)\b', normalize_single_slash, expanded_plain)
-
+            from expander import normalize_slashes
+            expanded_plain = normalize_slashes(expanded_plain)
+            
             # --- 2. build .docx in memory ----------------------------------
             doc   = Document()
             style = doc.styles["Normal"]
