@@ -114,7 +114,7 @@ else:
     if dict_file:
         abbr_dict = load_abbreviation_dict(dict_file)
     else:
-        abbr_dict = load_abbreviation_dict("abbreviations7thJuly.xlsx")
+        abbr_dict = load_abbreviation_dict("abbreviations14thJuly.xlsx")
     st.sidebar.info("Using default dictionary")
 
 # 2️⃣  User input -------------------------------------------------------------
