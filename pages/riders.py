@@ -5,8 +5,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.dml import MSO_THEME_COLOR_INDEX
 from docx.enum.text import WD_COLOR_INDEX
-from expander import load_abbreviation_dict, expand_abbreviations, normalize_slashes
-
+from expander import load_abbreviation_dict, expand_abbreviations
 
 def strip_html_tags(text):
     return re.sub(r'</?mark>', '', text)
@@ -171,11 +170,6 @@ if go:
                 highlighted_lines.append("")
             
             for i, (plain_line, highlighted_line) in enumerate(zip(plain_lines, highlighted_lines)):
-
-                # Re-normalize the slash formatting for consistency
-                plain_line = normalize_slashes(plain_line, highlight=False)
-                highlighted_line = normalize_slashes(highlighted_line, highlight=True)
-
 
                 # Skip blank lines entirely
                 if not plain_line.strip():
