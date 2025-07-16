@@ -28,7 +28,8 @@ def normalize_slashes(text: str, highlight=False) -> str:
             return "<mark>and/or</mark>" if highlight else "and/or"
         fixed = f"{a} / {b}"
         return f"<mark>{fixed}</mark>" if highlight else fixed
-    text = re.sub(r'\b(\w+)\s*/\s*(\w+)\b', fix_single, text)
+     # ✅ THIS is the fix — add re.IGNORECASE
+    text = re.sub(r'\b(\w+)\s*/\s*(\w+)\b', fix_single, text, flags=re.IGNORECASE)
 
     return text
 
