@@ -3,7 +3,6 @@ import streamlit as st
 from docx import Document                # python‑docx
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.dml import MSO_THEME_COLOR_INDEX
 from docx.enum.text import WD_COLOR_INDEX
 from expander import load_abbreviation_dict, expand_abbreviations
 
@@ -144,9 +143,16 @@ if go:
         with st.spinner("Expanding abbreviations and creating Word document…"):
 
             # --- 1. expand abbreviations (plain) ---------------------------
-            expanded_plain, expanded_highlighted = expand_abbreviations(raw_text, abbr_dict)
+            # 👇 Just renaming to avoid confusion, we’ll keep original variable
+            expanded_plain_text, expanded_highlighted_text = expand_abbreviations(raw_text, abbr_dict)
 
-            if not expanded_plain or not expanded_highlighted:
+
+            # Proceed with final lines
+            plain_lines = expanded_plain_text.splitlines()
+            highlighted_lines = expanded_highlighted_text.splitlines()
+
+
+            if not expanded_plain_text or not expanded_highlighted_text:
                 st.error("Something went wrong during abbreviation expansion")
                 st.stop()
 
@@ -159,8 +165,10 @@ if go:
             expected_clause_num = None
             
             # Process both plain and highlighted versions
-            plain_lines = expanded_plain.splitlines() if expanded_plain else []
-            highlighted_lines = expanded_highlighted.splitlines() if expanded_highlighted else []
+            # ✅ KEEP FINAL EXPANSION AS-IS:
+            plain_lines = expanded_plain_text.splitlines()
+            highlighted_lines = expanded_highlighted_text.splitlines()
+
             
             # Ensure both lists have the same length
             max_len = max(len(plain_lines), len(highlighted_lines))
@@ -170,6 +178,7 @@ if go:
                 highlighted_lines.append("")
             
             for i, (plain_line, highlighted_line) in enumerate(zip(plain_lines, highlighted_lines)):
+
 
                 # Skip blank lines entirely
                 if not plain_line.strip():
@@ -300,7 +309,18 @@ if go:
                                 p.add_run(strip_html_tags(part))
                     else:
                         # No highlights in this line
-                        p.add_run(plain_line)
+                        if '<mark>' in highlighted_line:
+                            parts = re.split(r'(<mark>.*?</mark>)', highlighted_line)
+                            for part in parts:
+                                if part.startswith('<mark>') and part.endswith('</mark>'):
+                                    clean_text = strip_html_tags(part)
+                                    run = p.add_run(clean_text)
+                                    run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+                                else:
+                                    p.add_run(strip_html_tags(part))
+                        else:
+                            p.add_run(plain_line)
+
                     
                     p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
                     p.paragraph_format.space_before = Pt(0)
@@ -353,7 +373,8 @@ if formatted_bytes:
                                  "wordprocessingml.document"),
                            use_container_width=True)
 
-    escaped = json.dumps(expanded_plain)[1:-1]
+    escaped = json.dumps(expanded_plain_text)[1:-1]
+
     copy_js = f"""
     <script>
     function copyWordText(){{

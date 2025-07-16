@@ -3,25 +3,22 @@ import re
 
 def normalize_slashes(text: str, highlight=False) -> str:
     """
-    Normalizes:
-    - 'and / or' → 'and/or'
-    - 'word1 / word2 / word3' etc. → single spaced slashes
-    If highlight=True, wrap changed parts in <mark> tags.
+    Normalize:
+    - Adds spaces around slashes if not present
+    - Handles single and multiple slash cases
+    - Keeps 'and/or' merged
     """
 
-    # 1. Handle "and / or" → "and/or"
     def fix_and_or(m):
         return "<mark>and/or</mark>" if highlight else "and/or"
     text = re.sub(r'\band\s*/\s*or\b', fix_and_or, text, flags=re.IGNORECASE)
 
-    # 2. Normalize multiple slashes
     def fix_multiple(m):
         parts = re.split(r'\s*/\s*', m.group())
         fixed = ' / '.join(parts)
         return f"<mark>{fixed}</mark>" if highlight else fixed
     text = re.sub(r'(\w+\s*/\s*\w+(?:\s*/\s*\w+)+)', fix_multiple, text)
 
-    # 3. Normalize single slash phrases
     def fix_single(m):
         a, b = m.group(1), m.group(2)
         if a.lower() == "and" and b.lower() == "or":
@@ -31,6 +28,7 @@ def normalize_slashes(text: str, highlight=False) -> str:
     text = re.sub(r'\b(\w+)\s*/\s*(\w+)\b', fix_single, text)
 
     return text
+
 
 def load_abbreviation_dict(excel_file):
     df = pd.read_excel(excel_file)
@@ -44,6 +42,18 @@ def load_abbreviation_dict(excel_file):
     return result
 
 def expand_abbreviations(text, abbr_dict):
+    def expand_slash_words(text, abbr_dict):
+        # Find patterns like word1/word2 and expand each part
+        def replacer(match):
+            left, right = match.group(1), match.group(2)
+            left_full = abbr_dict.get(left.lower(), left)
+            right_full = abbr_dict.get(right.lower(), right)
+            return f"{left_full} / {right_full}"
+    
+        return re.sub(r'\b(\w+)\s*/\s*(\w+)\b', replacer, text)
+    
+
+
     def capitalize_after_punctuation(text):
         return re.sub(r'([.!?])(\s*)([a-z])', lambda m: m.group(1) + m.group(2) + m.group(3).upper(), text)
 
@@ -68,6 +78,9 @@ def expand_abbreviations(text, abbr_dict):
             # Apply abbreviation expansion BEFORE slash normalization
             plain_line = line
             highlighted_line = line
+
+            plain_line = expand_slash_words(plain_line, abbr_dict)
+            highlighted_line = expand_slash_words(highlighted_line, abbr_dict)
 
             # More precise number + abbreviation pattern
             number_abbr_pattern = re.compile(r'\b(\d*\.?\d+)\s*([a-zA-Z()./]+)\b')
