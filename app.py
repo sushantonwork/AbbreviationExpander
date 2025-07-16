@@ -2,8 +2,17 @@ import streamlit as st
 import json
 import html
 from expander import load_abbreviation_dict, expand_abbreviations
+import base64
 
 st.set_page_config(page_title="Abbreviation Expander", layout="wide")
+
+# Function to encode image to base64
+def get_base64_of_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode()
+    except:
+        return None
 
 uploaded_file = st.sidebar.file_uploader("Choose Excel file (.xlsx)", type=["xlsx"])
 # Sidebar
@@ -24,36 +33,65 @@ with st.sidebar:
             </div>
         """, unsafe_allow_html=True)
 
-# Enhanced Custom CSS with improved layout and fixed gaps
+# Enhanced Custom CSS with logo support
 st.markdown("""
     <style>
         /* Global Styles */
         .main {
-            padding-top: 0.5rem;
-            overflow: auto !important;
-        }
+            padding-top: 3rem !important;
+            overflow: visible !important;  /* allow visible overflow */
+        }       
 
         /* Container Height Control */
         .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-            overflow: auto !important;
+            padding-top: 3rem !important;
+            padding-bottom: 2rem !important;
+            overflow: visible !important;  /* allow visible overflow */
             max-width: none !important;
         }
         
-        /* Header Styles */
+        /* Header Styles with Logo */
         .header-container {
             background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
-            padding: 0.5rem;
+            padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1.5rem;
-            text-align: center;
             box-shadow: 0 4px 20px rgba(30, 58, 138, 0.3);
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+
+
+        .logo-container {
+            background: white;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            height: 60px;
+            min-width: 120px;
+        }
+
+        .logo-container img {
+            max-height: 50px;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .header-content {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
         }
 
         .main-title {
-            font-size: 1.4rem;
-            font-weight: 600;
+            font-size: 1.8rem;
+            font-weight: 700;
             color: white !important;
             margin: 0;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -61,8 +99,9 @@ st.markdown("""
 
         .subtitle {
             color: rgba(255, 255, 255, 0.9) !important;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1.80rem;  /* ✅ Add this line */
             font-weight: 300;
         }
 
@@ -399,14 +438,53 @@ st.markdown("""
             padding-top: 1rem;
             border-top: 1px solid #e2e8f0;
         }
+
+        /* Responsive design for header */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .header-content {
+                margin-left: 0;
+            }
+            
+            .logo-container {
+                min-width: auto;
+            }
+        }
     </style>
 """, unsafe_allow_html=True)
 
-# Header Section
-st.markdown("""
+# Header Section with Logo
+# You can either use a local image file or upload the logo to your project
+# For this example, I'll show both methods
+
+# Method 1: Using local image file (recommended)
+# Save your logo image as "logo.png" in the same directory as your app.py
+logo_base64 = get_base64_of_image("logo.png")  # Change this to your logo file path
+
+# Method 2: If you want to embed the logo directly in code (alternative)
+# You can convert your logo to base64 and paste it here
+# logo_base64 = "your_base64_encoded_logo_string_here"
+
+if logo_base64:
+    logo_html = f'<img src="data:image/png;base64,{logo_base64}" alt="Howe Robinson Partners Logo">'
+else:
+    # Fallback if logo file is not found
+    logo_html = '<div style="color: white; font-size: 12px; text-align: center;">Logo<br>Here</div>'
+
+st.markdown(f"""
     <div class='header-container'>
-        <h1 class='main-title'>NEMO</h1>
-        <p class='subtitle'>Transform abbreviated text into fully expanded, professional content</p>
+        <div class='logo-container'>
+            {logo_html}
+        </div>
+        <div class='header-content'>
+            <h1 class='main-title'>NEMO</h1>
+            <p class='subtitle'>Transform abbreviated text into fully expanded, professional content</p>
+        </div>
     </div>
 """, unsafe_allow_html=True)
 
