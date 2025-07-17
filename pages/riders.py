@@ -339,30 +339,6 @@ if go:
             bio.seek(0)
             formatted_bytes = bio.read()
 
-        # --- 3. live preview ---------------------------------------------
-        st.subheader("Preview")
-        
-        # Add highlighting legend
-        st.markdown(
-            """
-            <div style="margin-bottom: 10px; padding: 8px; background: #f0f2f6; border-radius: 4px; font-size: 12px;">
-            <strong>🎨 Highlighting Legend:</strong><br>
-            <span style="background: #90EE90; padding: 2px 4px; border-radius: 2px;">Green</span> = Clause headers standardized &nbsp;&nbsp;
-            <span style="background: #FFFF00; padding: 2px 4px; border-radius: 2px;">Yellow</span> = Abbreviations expanded
-            <br><small>💡 Highlights are removable in Word: Select All → Home tab → Text Highlight Color → No Color</small>
-            </div>
-            """, 
-            unsafe_allow_html=True
-        )
-        
-        st.markdown(
-            "<div style='background:#fff;border:1px solid #3730a3;"
-            "padding:1rem;border-radius:6px;white-space:pre-wrap;"
-            "font-family:Arial;font-size:10pt;color:#1e293b;"
-            "text-align:justify'>" + "<br>".join(preview_lines) + "</div>",
-            unsafe_allow_html=True,
-        )
-
 # 4️⃣  Download + copy --------------------------------------------------------
 if formatted_bytes:
     with col_dl:
