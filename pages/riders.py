@@ -1,6 +1,6 @@
 import io, json, html, re
 import streamlit as st
-from docx import Document                # python‑docx
+from docx import Document               
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.text import WD_COLOR_INDEX
@@ -9,13 +9,11 @@ from expander import load_abbreviation_dict, expand_abbreviations
 def strip_html_tags(text):
     return re.sub(r'</?mark>', '', text)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Helper ─ identify real clause headings only - IMPROVED VERSION
-# ─────────────────────────────────────────────────────────────────────────────
 
-# Updated regex to handle the actual document format
+
+
 HEADER_RE = re.compile(r"^\s*(\d{1,3})\\?[\.\:\-]\s*(.*)$")
-# Additional regex to handle existing "Clause X" format with various separators
+
 CLAUSE_RE = re.compile(r"^\s*[Cc]lause\s+(\d{1,3})[\.\:\-]?\s*(.*)$", re.IGNORECASE)
 
 def is_clause_heading(text: str, expected: int | None) -> tuple[bool, int | None]:
@@ -48,7 +46,7 @@ def is_clause_heading(text: str, expected: int | None) -> tuple[bool, int | None
     
     # Be more lenient with gaps for higher numbered clauses (90+)
     max_gap = 10 if num >= 90 else 5
-    if expected is not None and num > expected + max_gap:
+    if expected is not None and num > expected + max_gap: 
         return (False, expected)
 
     # Handle different cases based on title content
@@ -113,7 +111,7 @@ else:
     if dict_file:
         abbr_dict = load_abbreviation_dict(dict_file)
     else:
-        abbr_dict = load_abbreviation_dict("abbreviations14thJuly.xlsx")
+        abbr_dict = load_abbreviation_dict("abbreviations_01.12.25.xlsx")
     st.sidebar.info("Using default dictionary")
 
 # 2️⃣  User input -------------------------------------------------------------

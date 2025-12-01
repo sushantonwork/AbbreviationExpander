@@ -492,7 +492,7 @@ st.markdown(f"""
 if uploaded_file:
     abbr_dict = load_abbreviation_dict(uploaded_file)
 else:
-    abbr_dict = load_abbreviation_dict("abbreviations14thJuly.xlsx")
+    abbr_dict = load_abbreviation_dict("abbreviations_01.12.25.xlsx")
 
 # Initialize clear counter for forcing text area reset
 if "clear_counter" not in st.session_state:
